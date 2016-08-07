@@ -68,10 +68,20 @@ delimiter //
 CREATE PROCEDURE nepazon.unregister_product(IN product_id INT)
 
 BEGIN
+	DECLARE retrieved_product_id INT DEFAULT 0;
+
+	SELECT product_id FROM nepazon.products WHERE nepazon.products.product_id = product_id INTO retrieved_product_id;
+
+	# Check if the retrieved product id is valid or not
+	IF(retrieved_product_id = 0) THEN # The retrieved product id is not valid
+		RETURN FALSE;
+	END IF;
+
 	DELETE FROM nepazon.products WHERE nepazon.products.product_id = product_id; # Delete product with the specified product id
+
 END //
 delimiter
-
+call nepazon.unregister_product(12);
 DROP PROCEDURE IF EXISTS nepazon.modify_product;
 
 ##########################################################################################
@@ -103,11 +113,11 @@ delimiter //
 CREATE PROCEDURE nepazon.log_user_activity(IN username VARCHAR(45), IN date_time DATETIME, IN log_type VARCHAR(45), IN log_activity VARCHAR(500))
 
 BEGIN
+
 	# Save this log INTO the database
 	INSERT INTO nepazon.user_log(log_username, log_datetime, log_type, log_activity) VALUES(username, date_time, log_type, log_activity);
+
 END //
 delimiter
 
 #CALL `nepazon`.`register_user`(<{username VARCHAR(45)}>);
-
-CALL nepazon.log_user_activity('foo', NOW(), 'foo', 'did somethINg amazing...');
